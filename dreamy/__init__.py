@@ -1,0 +1,1 @@
+PRETTY_APP_NAME = 'Dreamy'
