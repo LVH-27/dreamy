@@ -1,0 +1,10 @@
+{% extends "dreamy/base.html" %}
+
+{% block content %}
+	<h2>Home</h2>
+	{% if request.user.is_authenticated %}
+		<b>{{ request.user.username }}</b>
+	{% else %}
+		<b>No user</b>
+	{% endif %}
+{% endblock %}
