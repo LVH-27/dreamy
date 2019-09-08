@@ -36,3 +36,7 @@ class UserFollower(models.Model):
     follower = models.ForeignKey(settings.AUTH_USER_MODEL,
                                  on_delete=models.CASCADE,
                                  related_name='followers')
+
+    def __repr__(self):
+        """Custom string representation"""
+        return f"<User {self.user} - Follower {self.follower}"
