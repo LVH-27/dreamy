@@ -10,7 +10,7 @@
         <a href="{% url 'profile' user_id=user.id %}">
           <span>
             <!-- <img src="{{ user.avatar }}" height="50px" width="auto" display="inline-block"> -->
-            <h1>{{ post.title }}</h1>
+            {{ user.username }} - {{ user.bio }}
           </span>
         </a>
       </div>
