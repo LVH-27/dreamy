@@ -11,18 +11,11 @@ class DreamyUserCreationForm(UserCreationForm):
     overridden User model definition
     """
 
-    class Meta(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
         """This class overrides the User model definition"""
 
         model = User
-        fields = ['username', 'password', 'bio']
-
-    def __init__(self, *args, **kwargs):
-        """Override the constructor to set select fields to not required."""
-        super(DreamyUserCreationForm, self).__init__(*args, **kwargs)
-        self.fields['bio'].required = False
-        # self.fields['birth_date'].required = False
-        # self.fields['avatar'].required = False
+        fields = ['username', 'bio', 'avatar']
 
 
 class DreamyUserChangeForm(UserChangeForm):
@@ -31,15 +24,7 @@ class DreamyUserChangeForm(UserChangeForm):
     overridden User model definition
     """
 
-    class Meta(UserChangeForm):
+    class Meta(UserChangeForm.Meta):
         """This class overrides the User model definition"""
 
         model = User
-        fields = ['username', 'password', 'bio']
-
-    def __init__(self, *args, **kwargs):
-        """Override the constructor to set select fields to not required."""
-        super(DreamyUserChangeForm, self).__init__(*args, **kwargs)
-        self.fields['bio'].required = False
-        # self.fields['birth_date'].required = False
-        # self.fields['avatar'].required = False
