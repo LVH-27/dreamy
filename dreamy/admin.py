@@ -11,9 +11,12 @@ class DreamyUserAdmin(UserAdmin):
 
     add_form = DreamyUserCreationForm
     form = DreamyUserChangeForm
-    model = User
+    # model = User
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('bio', 'birth_date', 'avatar',)}),
+    )
 
 
-admin.site.register(User)
+admin.site.register(User, DreamyUserAdmin)
 admin.site.register(UserFollower)
 admin.site.register(Post)
