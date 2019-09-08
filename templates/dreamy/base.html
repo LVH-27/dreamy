@@ -1,3 +1,5 @@
+{% load static %}
+
 <html>
   <head>
     <title>Dream Implementation Insta</title>
@@ -26,6 +28,7 @@
             &nbsp; | &nbsp;
           <a href="{% url 'logout' %}">Sign out</a>
         {% else %}
+          <a href="{% url 'register' %}">Register</a>
           <a href="{% url 'login' %}">Sign in</a>
         {% endif %}
       </div>
@@ -37,9 +40,13 @@
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <ul class="nav navbar-nav">
-          <li>Test1</li>
-          <li>Test2</li>
-          <li>Test3</li>
+          <li><a href="{% url 'home' %}">Home</a></li>
+          {% if request.user.is_authenticated %}
+            <li><a href="{% url 'home' %}">Private timeline</a></li>
+            <li><a href="{% url 'browse_follows' user_id=request.user.id follow='following' %}">Browse following</a></li>
+            <li><a href="{% url 'browse_follows' user_id=request.user.id follow='followers' %}">Browse followers</a></li>
+          {% endif %}
+          <li><a href="{% url 'browse_users' %}">Browse users</a></li>
         </ul>
       </div>
     </nav>
