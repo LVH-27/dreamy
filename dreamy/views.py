@@ -48,7 +48,7 @@ def profile(request, user_id=None):
                    'user_posts': user_posts})
 
 
-def browse_users(request, follow=None):
+def browse_users(request, user_id=None, follow=None):
     if follow is None:
         user_list = models.User.objects.all()
     # elif follow == 'followers':
@@ -59,7 +59,7 @@ def browse_users(request, follow=None):
     paginator = Paginator(user_list, 20)
 
     page = request.GET.get('page')
-    users = paginator.get(page)
+    users = paginator.get_page(page)
     return render(request,
                   join(APP_NAME, 'browse_users.html'),
                   {'users': users,
