@@ -25,7 +25,7 @@ urlpatterns = [
     path('post/<post_id>/', views.post, name='post'),
     path('users/', views.browse_users, name='browse_users'),
     path('users/<user_id>/', views.profile, name='profile'),
-    path('users/<user_id>/<follow>/', views.browse_users, name='browse_follows'),
+    re_path(r'users/(?P<user_id>[0-9]+)/(?P<follow>(followers|following))/', views.browse_users, name='browse_follows'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/', views.register, name='register'),
 ]
