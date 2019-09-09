@@ -8,7 +8,7 @@ from dreamy.models import User, UserFollower
 
 
 class HomePageTests(SimpleTestCase):
-    """Class for testing views"""
+    """Class for testing home page view"""
 
     def test_home_page_status_code(self):
         """Test if getting the home page gives HTTP status code 200"""
@@ -32,7 +32,7 @@ class HomePageTests(SimpleTestCase):
 
 
 class BrowseUsersTests(TestCase):
-    """Class for testing views"""
+    """Class for testing browse_users view"""
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
@@ -72,7 +72,7 @@ class BrowseUsersTests(TestCase):
 
 
 class BrowseFollowersTests(TestCase):
-    """Class for testing views"""
+    """Class for testing browse_follows view for followers"""
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
@@ -123,7 +123,7 @@ class BrowseFollowersTests(TestCase):
 
 
 class BrowseFollowingTests(TestCase):
-    """Class for testing views"""
+    """Class for testing browse_follows view for followees"""
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
@@ -171,3 +171,42 @@ class BrowseFollowingTests(TestCase):
         for follower in following:
             url = reverse('profile', kwargs={'user_id': follower.id})
             self.assertContains(response, f'<a href="{url}">')
+
+
+class RegistrationTests(TestCase):
+    """Class for testing the registration view"""
+
+    pass
+
+
+class UserProfileTests(TestCase):
+    """Class for testing the user profile"""
+
+    def setUp(self):
+        self.user_1 = User.objects.create(username='test_user')
+        self.user_1.set_password('test_password')
+        self.user_1.bio = "test_bio"
+        self.user_1.save()
+
+    def test_profile_status_code(self):
+        """browse_follows page gives HTTP status code 200 for users user_1 is following"""
+        response = self.client.get(f'/users/{self.user_1.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_url_by_name(self):
+        """browse_follows page for users user_1 is following via the URL name gives HTTP status code 200"""
+        response = self.client.get(reverse('profile',
+                                           kwargs={'user_id': self.user_1.id}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_profile_correct_template(self):
+        """Test if URL 'browse_follows' uses browse_users.html for users user_1 is following"""
+        response = self.client.get(reverse('profile',
+                                           kwargs={'user_id': self.user_1.id}))
+        self.assertTemplateUsed(response, join(APP_NAME, 'profile.html'))
+
+    def test_profile_contains_correct_html(self):
+        """Test if URL 'browse_follows' returns HTML with 'Browse 1st_user's following"""
+        response = self.client.get(reverse('profile',
+                                           kwargs={'user_id': self.user_1.id}))
+        self.assertContains(response, f"<h2>{self.user_1.username}</h2>")
