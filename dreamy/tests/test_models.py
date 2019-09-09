@@ -10,7 +10,9 @@ class UserTest(TestCase):
 
     def setUp(self):
         """Set up the user for testing"""
-        User.objects.create(username='test_user', password='test_password')
+        user = User.objects.create(username='test_user')
+        user.set_password('test_password')
+        user.save()
 
     def test_user_exists(self):
         """Test the existence of the user created in setUp"""
