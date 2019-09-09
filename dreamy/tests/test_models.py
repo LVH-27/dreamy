@@ -73,6 +73,11 @@ class FollowersTest(TestCase):
         self.assertEqual(followers.count(), 0)
 
     def test_following_none_correct(self):
-        """Test if user_5 follows nobody"""
+        """Test if user_1 follows nobody"""
         following = UserFollower.objects.filter(follower=self.user_1)
         self.assertEqual(following.count(), 0)
+
+    def test_user_follower_repr_correct(self):
+        """Test if __repr__ for UserFollower works correctly"""
+        uf = UserFollower.objects.get(user=self.user_1, follower=self.user_2)
+        self.assertEqual(uf.__repr__(), f"<User {self.user_1.username} - Follower {self.user_2.username}>")
