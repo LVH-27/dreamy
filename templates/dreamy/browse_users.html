@@ -1,7 +1,7 @@
 {% extends 'dreamy/base.html' %}
 
 {% block content %}
-  <h2>Browse users:</h2>
+  <h2>Browse {{ user_category }}:</h2>
   <div class="container">
     <div class="list-group">
       {% for user in users %}

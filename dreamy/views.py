@@ -48,16 +48,19 @@ def profile(request, user_id=None):
 
 def browse_users(request, user_id=None, follow=None):
     if follow is None:
-        user_list = models.User.objects.all()
+        user_list = models.User.objects.all().order_by('username')
+        user_category = 'users'
     else:
         # note: if follow is not None, the user_id cannot be None
         user = models.User.objects.get(id=user_id)
         if follow == 'followers':
             user_follower_list = models.UserFollower.objects.filter(user=user)
-            user_list = [user_follower.follower for user_follower in user_follower_list]
+            user_list = sorted([user_follower.follower for user_follower in user_follower_list])
+            user_category = f'{user.username}\'s followers'
         elif follow == 'following':
             user_follower_list = models.UserFollower.objects.filter(follower=user)
-            user_list = [user_follower.user for user_follower in user_follower_list]
+            user_list = sorted([user_follower.user for user_follower in user_follower_list])
+            user_category = f'users {user.username} follows'
 
     paginator = Paginator(user_list, 20)
     page = request.GET.get('page')
@@ -65,7 +68,8 @@ def browse_users(request, user_id=None, follow=None):
     return render(request,
                   join(APP_NAME, 'browse_users.html'),
                   {'users': users,
-                   'PRETTY_APP_NAME': PRETTY_APP_NAME})
+                   'PRETTY_APP_NAME': PRETTY_APP_NAME,
+                   'user_category': user_category})
 
 
 def post(request, post_id):
