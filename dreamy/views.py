@@ -55,12 +55,13 @@ def browse_users(request, user_id=None, follow=None):
         user = models.User.objects.get(id=user_id)
         if follow == 'followers':
             user_follower_list = models.UserFollower.objects.filter(user=user)
-            user_list = sorted([user_follower.follower for user_follower in user_follower_list])
+            user_list = [user_follower.follower for user_follower in user_follower_list]
             user_category = f'{user.username}\'s followers'
         elif follow == 'following':
             user_follower_list = models.UserFollower.objects.filter(follower=user)
-            user_list = sorted([user_follower.user for user_follower in user_follower_list])
+            user_list = [user_follower.user for user_follower in user_follower_list]
             user_category = f'users {user.username} follows'
+        user_list.sort(key=lambda x: x.username)
 
     paginator = Paginator(user_list, 20)
     page = request.GET.get('page')
