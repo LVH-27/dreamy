@@ -5,11 +5,9 @@ from django.core.paginator import Paginator
 from os.path import join
 
 from .forms import DreamyUserCreationForm
-from . import PRETTY_APP_NAME, models
+from . import PRETTY_APP_NAME, APP_NAME, models
 
 # Create your views here.
-
-APP_NAME = 'dreamy'
 
 
 def home(request):
