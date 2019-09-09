@@ -39,4 +39,4 @@ class UserFollower(models.Model):
 
     def __repr__(self):
         """Custom string representation"""
-        return f"<User {self.user} - Follower {self.follower}"
+        return f"<User {self.user} - Follower {self.follower}>"
