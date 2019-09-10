@@ -13,7 +13,7 @@ class DreamyUserAdmin(UserAdmin):
     form = DreamyUserChangeForm
     # model = User
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('bio', 'birth_date', 'avatar',)}),
+        (None, {'fields': ('bio', 'avatar',)}),
     )
 
 
