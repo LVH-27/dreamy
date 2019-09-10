@@ -48,27 +48,34 @@ def profile(request, user_id=None):
 
 def browse_users(request, user_id=None, follow=None):
     if follow is None:
-        user_list = models.User.objects.all().order_by('username')
         user_category = 'users'
+        user_list = models.User.objects.all().order_by('username')
     else:
         # note: if follow is not None, the user_id cannot be None
         user = models.User.objects.get(id=user_id)
         if follow == 'followers':
+            user_category = f'{user.username}\'s followers'
             user_follower_list = models.UserFollower.objects.filter(user=user)
             user_list = [user_follower.follower for user_follower in user_follower_list]
-            user_category = f'{user.username}\'s followers'
         elif follow == 'following':
+            user_category = f'users {user.username} follows'
             user_follower_list = models.UserFollower.objects.filter(follower=user)
             user_list = [user_follower.user for user_follower in user_follower_list]
-            user_category = f'users {user.username} follows'
         user_list.sort(key=lambda x: x.username)
 
-    paginator = Paginator(user_list, 20)
+    current_user_following_list = [user_follower.user for user_follower in
+                                   models.UserFollower.objects.filter(follower=request.user)]
+    print(request.user, current_user_following_list)
+    user_following_pairs = []
+    for user in user_list:
+        user_following_pairs.append((user, user in current_user_following_list))
+
+    paginator = Paginator(user_following_pairs, 20)
     page = request.GET.get('page')
-    users = paginator.get_page(page)
+    users_following = paginator.get_page(page)
     return render(request,
                   join(APP_NAME, 'browse_users.html'),
-                  {'users': users,
+                  {'users_following': users_following,
                    'PRETTY_APP_NAME': PRETTY_APP_NAME,
                    'user_category': user_category})
 

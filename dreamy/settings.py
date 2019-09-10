@@ -131,7 +131,6 @@ AUTH_USER_MODEL = 'dreamy.User'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-
 # Media files configuration - used for uploading images
 
 MEDIA_URL = '/media/'
