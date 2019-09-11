@@ -8,14 +8,14 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     """Overridden abstract User class to add bio, birth date and avatar fields"""
 
-    bio = models.TextField(max_length=500, blank=True, null=True)
+    bio = models.CharField(max_length=500, blank=True, null=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True)
 
 
 class Post(models.Model):
     """ORM model for a Dreamy post"""
 
-    description = models.TextField(max_length=300)
+    description = models.CharField(max_length=300)
     image = models.ImageField(upload_to='images/')
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE,
