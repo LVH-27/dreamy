@@ -1,0 +1,11 @@
+{% extends 'dreamy/base.html' %}
+
+{% block content %}
+  <div class="container">
+    <a href="{% url 'profile' user_id=user.id}">
+      <h4>{{ post.user.username }}</h4>
+    </a>
+    <img src="{{ post.image.url }}" alt="Image ID {{ post.id }}">
+    <p>{{ post.description }}</p>
+  </div>
+{% endblock %}
