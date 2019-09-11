@@ -1,17 +1,21 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.contrib.auth import authenticate
+from django.core.files import File
+from django.core.exceptions import ValidationError
 
-from dreamy.models import User, UserFollower
+from dreamy.models import User, UserFollower, Post
 
 
-class UserTest(TestCase):
+class UserTests(TestCase):
     """User creation-related tests"""
 
     def setUp(self):
         """Set up the user for testing"""
         user = User.objects.create(username='test_user')
         user.set_password('test_password')
+        file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        user.avatar.save('default_avatar.png', file)
         user.save()
 
     def test_user_exists(self):
@@ -23,6 +27,10 @@ class UserTest(TestCase):
         """Test the existence of the user created in setUp"""
         user = User.objects.get(username='test_user')
         self.assertIsNotNone(user.username, 'test_user')
+
+    def test_user_has_avatar(self):
+        user = User.objects.get(username='test_user')
+        self.assertTrue(user.avatar)
 
     def test_user_username_none_fails(self):
         """Test if users with username set to None can be saved"""
@@ -41,15 +49,16 @@ class UserTest(TestCase):
         self.assertIsNone(user)
 
 
-class FollowersTest(TestCase):
+class FollowersTests(TestCase):
     """Followers-related tests"""
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='1st_user', password='bartestpass')
-        self.user_2 = User.objects.create(username='2nd_user', password='bartestpass')
-        self.user_3 = User.objects.create(username='3rd_user', password='bartestpass')
-        self.user_4 = User.objects.create(username='4th_user', password='bartestpass')
+        self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass', avatar=self.file)
+        self.user_2 = User.objects.create(username='user_2', password='bartestpass', avatar=self.file)
+        self.user_3 = User.objects.create(username='user_3', password='bartestpass', avatar=self.file)
+        self.user_4 = User.objects.create(username='user_4', password='bartestpass', avatar=self.file)
 
         UserFollower.objects.create(user=self.user_1, follower=self.user_2)
         UserFollower.objects.create(user=self.user_1, follower=self.user_3)
@@ -81,3 +90,36 @@ class FollowersTest(TestCase):
         """Test if __repr__ for UserFollower works correctly"""
         uf = UserFollower.objects.get(user=self.user_1, follower=self.user_2)
         self.assertEqual(uf.__repr__(), f"<User {self.user_1.username} - Follower {self.user_2.username}>")
+
+
+class PostTests(TestCase):
+    """Post-related tests"""
+
+    def setUp(self):
+        """Create posts, users and followers for testing"""
+        self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass', avatar=self.file)
+
+        self.post = Post(
+            description='test description shorter than 300 characters',
+            author=self.user_1,
+            image=self.file)
+
+    def test_post_correct_author(self):
+        """Test if the post's author is correct."""
+        self.assertEqual(self.post.author, self.user_1)
+
+    def test_post_fail_description_more_than_300(self):
+        """Test if validation fails for descriptions longer than 300 characters."""
+        self.post.description = ''.join(['a' for i in range(301)])
+        self.assertRaises(ValidationError, self.post.full_clean)
+
+    def test_post_fail_without_description(self):
+        """Test if validation fails for blank descriptions."""
+        self.post.description = ''
+        self.assertRaises(ValidationError, self.post.full_clean)
+
+    def test_post_fail_without_image(self):
+        """Test if validation fails for posts with no image."""
+        self.post.image = None
+        self.assertRaises(ValidationError, self.post.full_clean)

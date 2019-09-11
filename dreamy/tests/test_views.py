@@ -1,5 +1,6 @@
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
+from django.core.files import File
 
 from os.path import join
 
@@ -36,10 +37,11 @@ class BrowseUsersTests(TestCase):
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='user_1', password='bartestpass')
-        self.user_2 = User.objects.create(username='user_2', password='bartestpass')
-        self.user_3 = User.objects.create(username='user_3', password='bartestpass')
-        self.user_4 = User.objects.create(username='user_4', password='bartestpass')
+        self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass', avatar=self.file)
+        self.user_2 = User.objects.create(username='user_2', password='bartestpass', avatar=self.file)
+        self.user_3 = User.objects.create(username='user_3', password='bartestpass', avatar=self.file)
+        self.user_4 = User.objects.create(username='user_4', password='bartestpass', avatar=self.file)
 
         self.users = [self.user_1, self.user_2, self.user_3, self.user_4]
 
@@ -76,11 +78,12 @@ class BrowseFollowersTests(TestCase):
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='user_1', password='bartestpass')
-        self.user_2 = User.objects.create(username='user_2', password='bartestpass')
-        self.user_3 = User.objects.create(username='user_3', password='bartestpass')
-        self.user_4 = User.objects.create(username='user_4', password='bartestpass')
-        self.user_5 = User.objects.create(username='5th_user', password='bartestpass')
+        self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass', avatar=self.file)
+        self.user_2 = User.objects.create(username='user_2', password='bartestpass', avatar=self.file)
+        self.user_3 = User.objects.create(username='user_3', password='bartestpass', avatar=self.file)
+        self.user_4 = User.objects.create(username='user_4', password='bartestpass', avatar=self.file)
+        self.user_5 = User.objects.create(username='user_5', password='bartestpass', avatar=self.file)
 
         self.users = [self.user_1, self.user_2, self.user_3, self.user_4]
 
@@ -145,10 +148,11 @@ class BrowseFollowingTests(TestCase):
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='user_1', password='bartestpass')
-        self.user_2 = User.objects.create(username='user_2', password='bartestpass')
-        self.user_3 = User.objects.create(username='user_3', password='bartestpass')
-        self.user_4 = User.objects.create(username='user_4', password='bartestpass')
+        self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass', avatar=self.file)
+        self.user_2 = User.objects.create(username='user_2', password='bartestpass', avatar=self.file)
+        self.user_3 = User.objects.create(username='user_3', password='bartestpass', avatar=self.file)
+        self.user_4 = User.objects.create(username='user_4', password='bartestpass', avatar=self.file)
 
         self.users = [self.user_1, self.user_2, self.user_3, self.user_4]
 
@@ -213,10 +217,11 @@ class AddRemoveFollowersTests(TestCase):
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='user_1')
+        self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user_1 = User.objects.create(username='user_1', avatar=self.file)
         self.user_1.set_password('bartestpass')
         self.user_1.save()
-        self.user_2 = User.objects.create(username='user_2')
+        self.user_2 = User.objects.create(username='user_2', avatar=self.file)
         self.user_2.set_password('bartestpass')
         self.user_2.save()
 
@@ -286,7 +291,8 @@ class UserProfileTests(TestCase):
     """Class for testing the user profile"""
 
     def setUp(self):
-        self.user_1 = User.objects.create(username='test_user')
+        self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user_1 = User.objects.create(username='test_user', avatar=self.file)
         self.user_1.set_password('test_password')
         self.user_1.bio = "test_bio"
         self.user_1.save()
