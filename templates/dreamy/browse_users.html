@@ -9,9 +9,9 @@
       <div class="col-xs-3">
         <span>
           <a href="{% url 'profile' user_id=user.0.id %}">
+            <img src="{{ user.0.avatar.url }}" alt="avatar" class="avatar">
             {{ user.0.username }}
           </a>
-            <!-- <img src="{{ user.0.avatar }}" height="50px" width="auto" display="inline-block"> -->
         </span>
       </div>
       {% if not request.user.is_authenticated %}

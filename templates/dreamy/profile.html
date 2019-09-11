@@ -2,6 +2,7 @@
 
 {% block content %}
   <h2>{{ user.username }}</h2>
+  <img src="{{ user.avatar.url }}" alt="avatar" class="avatar-large">
   <p>{{ user.bio }}</p>
   <a href="{% url 'browse_follows' user_id=user.id follow='followers' %}">Followers</a>
   <a href="{% url 'browse_follows' user_id=user.id follow='following' %}">Following</a>

@@ -3,4 +3,5 @@ hr { border-color: #cccccc; margin: 0; }
 .with-margins { margin: 10px; }
 .col-centered { float: none; margin: 0 auto; }
 .post-img { height: 200px; float: left; margin-right: 20px; }
+.avatar { height: 50px; display: inline-block; }
 button { text-align: center; }

@@ -2,6 +2,7 @@ from django.contrib.auth import login, get_user_model
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from django.core.files import File
 from django.db.utils import IntegrityError
 from datetime import datetime
 
@@ -21,9 +22,11 @@ def home(request):
 
 def register(request):
     if request.method == 'POST':
-        form = DreamyUserCreationForm(request.POST)
+        form = DreamyUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             user = form.save()
+            if not user.avatar:
+                user.avatar.save('default_avatar.png', File(open('static/dreamy/images/default_avatar.png', 'rb')))
             login(request, user)
             return redirect('home')
     else:

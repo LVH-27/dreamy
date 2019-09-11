@@ -9,7 +9,7 @@ class User(AbstractUser):
     """Overridden abstract User class to add bio, birth date and avatar fields"""
 
     bio = models.TextField(max_length=500, blank=True, null=True)
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True)
 
 
 class Post(models.Model):
