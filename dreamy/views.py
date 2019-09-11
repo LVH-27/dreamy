@@ -42,7 +42,7 @@ def profile(request, user_id=None):
     user = get_user_model().objects.get(id=user_id)
     user_posts = models.Post.objects.filter(author=user).order_by('-date')
 
-    paginator = Paginator(user_posts, 2)
+    paginator = Paginator(user_posts, 20)
     page = request.GET.get('page')
     posts = paginator.get_page(page)
     return render(request,
@@ -124,7 +124,7 @@ def timeline(request, private):
     [posts.extend(models.Post.objects.filter(author=user)) for user in target_users]
     posts.sort(key=lambda post: post.date)
 
-    paginator = Paginator(posts, 2)
+    paginator = Paginator(posts, 20)
     page = request.GET.get('page')
     posts = paginator.get_page(page)
     return render(request,
