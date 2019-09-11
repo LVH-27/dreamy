@@ -229,6 +229,7 @@ class AddRemoveFollowers(TestCase):
         followee_id = self.user_2.id
         response = self.client.put(path=f'/ajax/follow/{followee_id}')
         self.assertTrue(response.json()['success'])
+        self.assertTrue(UserFollower.objects.get(user=self.user_2, follower=self.user_1))
 
     def test_add_followee_through_view(self):
         """Test adding a followee through reversing the URL"""
@@ -237,6 +238,7 @@ class AddRemoveFollowers(TestCase):
         url = reverse('follow', kwargs={'followee_id': followee_id})
         response = self.client.put(path=url)
         self.assertTrue(response.json()['success'])
+        self.assertTrue(UserFollower.objects.get(user=self.user_2, follower=self.user_1))
 
     def test_fail_to_add_followee_already_following(self):
         """Test adding a followee that is already being followed"""
@@ -253,6 +255,7 @@ class AddRemoveFollowers(TestCase):
         followee_id = self.user_1.id
         response = self.client.put(path=f'/ajax/unfollow/{followee_id}')
         self.assertTrue(response.json()['success'])
+        self.assertRaises(UserFollower.DoesNotExist, UserFollower.objects.get, user=self.user_1, follower=self.user_2)
 
     def test_remove_followee_through_view(self):
         """Test removing a followee through reversing the URL"""
@@ -262,6 +265,7 @@ class AddRemoveFollowers(TestCase):
         url = reverse('unfollow', kwargs={'followee_id': followee_id})
         response = self.client.put(path=url)
         self.assertTrue(response.json()['success'])
+        self.assertRaises(UserFollower.DoesNotExist, UserFollower.objects.get, user=self.user_1, follower=self.user_2)
 
     def test_fail_to_remove_followee_not_following(self):
         """Test removing a followee that is not even being followed"""
