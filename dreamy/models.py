@@ -20,7 +20,7 @@ class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
                                on_delete=models.CASCADE,
                                related_name='posts')
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
 
     def __repr__(self):
         """Custom string representation"""
