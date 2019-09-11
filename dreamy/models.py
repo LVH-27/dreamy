@@ -40,3 +40,6 @@ class UserFollower(models.Model):
     def __repr__(self):
         """Custom string representation"""
         return f"<User {self.user} - Follower {self.follower}>"
+
+    class Meta:
+        unique_together = ('user', 'follower')
