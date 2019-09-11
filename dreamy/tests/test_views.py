@@ -1,12 +1,10 @@
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
-from django.contrib.auth import authenticate
 
 from os.path import join
 
 from dreamy import APP_NAME
 from dreamy.models import User, UserFollower
-from dreamy.views import follow, unfollow
 
 
 class HomePageTests(SimpleTestCase):
@@ -38,10 +36,10 @@ class BrowseUsersTests(TestCase):
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='1st_user', password='bartestpass')
-        self.user_2 = User.objects.create(username='2nd_user', password='bartestpass')
-        self.user_3 = User.objects.create(username='3rd_user', password='bartestpass')
-        self.user_4 = User.objects.create(username='4th_user', password='bartestpass')
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass')
+        self.user_2 = User.objects.create(username='user_2', password='bartestpass')
+        self.user_3 = User.objects.create(username='user_3', password='bartestpass')
+        self.user_4 = User.objects.create(username='user_4', password='bartestpass')
 
         self.users = [self.user_1, self.user_2, self.user_3, self.user_4]
 
@@ -78,10 +76,11 @@ class BrowseFollowersTests(TestCase):
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='1st_user', password='bartestpass')
-        self.user_2 = User.objects.create(username='2nd_user', password='bartestpass')
-        self.user_3 = User.objects.create(username='3rd_user', password='bartestpass')
-        self.user_4 = User.objects.create(username='4th_user', password='bartestpass')
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass')
+        self.user_2 = User.objects.create(username='user_2', password='bartestpass')
+        self.user_3 = User.objects.create(username='user_3', password='bartestpass')
+        self.user_4 = User.objects.create(username='user_4', password='bartestpass')
+        self.user_5 = User.objects.create(username='5th_user', password='bartestpass')
 
         self.users = [self.user_1, self.user_2, self.user_3, self.user_4]
 
@@ -109,7 +108,7 @@ class BrowseFollowersTests(TestCase):
         self.assertTemplateUsed(response, join(APP_NAME, 'browse_users.html'))
 
     def test_browse_followers_contains_correct_html(self):
-        """Test if URL 'browse_follows' returns HTML with 'Browse 1st_user's followers"""
+        """Test if URL 'browse_follows' returns HTML with 'Browse user_1's followers"""
         response = self.client.get(reverse('browse_follows',
                                            kwargs={'user_id': self.user_1.id, 'follow': 'followers'}))
         self.assertContains(response, f"<h2>Browse {self.user_1.username}&#39;s followers:</h2>")
@@ -146,10 +145,10 @@ class BrowseFollowingTests(TestCase):
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='1st_user', password='bartestpass')
-        self.user_2 = User.objects.create(username='2nd_user', password='bartestpass')
-        self.user_3 = User.objects.create(username='3rd_user', password='bartestpass')
-        self.user_4 = User.objects.create(username='4th_user', password='bartestpass')
+        self.user_1 = User.objects.create(username='user_1', password='bartestpass')
+        self.user_2 = User.objects.create(username='user_2', password='bartestpass')
+        self.user_3 = User.objects.create(username='user_3', password='bartestpass')
+        self.user_4 = User.objects.create(username='user_4', password='bartestpass')
 
         self.users = [self.user_1, self.user_2, self.user_3, self.user_4]
 
@@ -177,7 +176,7 @@ class BrowseFollowingTests(TestCase):
         self.assertTemplateUsed(response, join(APP_NAME, 'browse_users.html'))
 
     def test_browse_following_contains_correct_html(self):
-        """Test if URL 'browse_follows' returns HTML with 'Browse 1st_user's following"""
+        """Test if URL 'browse_follows' returns HTML with 'Browse user_1's following"""
         response = self.client.get(reverse('browse_follows',
                                            kwargs={'user_id': self.user_1.id, 'follow': 'following'}))
         self.assertContains(response, f"<h2>Browse users {self.user_1.username} follows:</h2>")
@@ -209,15 +208,15 @@ class BrowseFollowingTests(TestCase):
             self.assertNotContains(response, f'<a href="{url}">')
 
 
-class AddRemoveFollowers(TestCase):
+class AddRemoveFollowersTests(TestCase):
     """Class for testing the adding and removal of followers"""
 
     def setUp(self):
         """Create test users and set up who is following whom for testing"""
-        self.user_1 = User.objects.create(username='1st_user')
+        self.user_1 = User.objects.create(username='user_1')
         self.user_1.set_password('bartestpass')
         self.user_1.save()
-        self.user_2 = User.objects.create(username='2nd_user')
+        self.user_2 = User.objects.create(username='user_2')
         self.user_2.set_password('bartestpass')
         self.user_2.save()
 
@@ -225,7 +224,7 @@ class AddRemoveFollowers(TestCase):
 
     def test_add_followee_through_api(self):
         """Test adding a followee directly through the API"""
-        self.assertTrue(self.client.login(username='1st_user', password='bartestpass'))
+        self.assertTrue(self.client.login(username='user_1', password='bartestpass'))
         followee_id = self.user_2.id
         response = self.client.put(path=f'/ajax/follow/{followee_id}')
         self.assertTrue(response.json()['success'])
@@ -233,7 +232,7 @@ class AddRemoveFollowers(TestCase):
 
     def test_add_followee_through_view(self):
         """Test adding a followee through reversing the URL"""
-        self.assertTrue(self.client.login(username='1st_user', password='bartestpass'))
+        self.assertTrue(self.client.login(username='user_1', password='bartestpass'))
         followee_id = self.user_2.id
         url = reverse('follow', kwargs={'followee_id': followee_id})
         response = self.client.put(path=url)
@@ -242,7 +241,7 @@ class AddRemoveFollowers(TestCase):
 
     def test_fail_to_add_followee_already_following(self):
         """Test adding a followee that is already being followed"""
-        self.assertTrue(self.client.login(username='2nd_user', password='bartestpass'))
+        self.assertTrue(self.client.login(username='user_2', password='bartestpass'))
         followee_id = self.user_1.id
         url = reverse('follow', kwargs={'followee_id': followee_id})
         response = self.client.put(path=url)
@@ -251,7 +250,7 @@ class AddRemoveFollowers(TestCase):
 
     def test_remove_followee_through_api(self):
         """Test removing a followee directly through the API"""
-        self.assertTrue(self.client.login(username='2nd_user', password='bartestpass'))
+        self.assertTrue(self.client.login(username='user_2', password='bartestpass'))
         followee_id = self.user_1.id
         response = self.client.put(path=f'/ajax/unfollow/{followee_id}')
         self.assertTrue(response.json()['success'])
@@ -259,7 +258,7 @@ class AddRemoveFollowers(TestCase):
 
     def test_remove_followee_through_view(self):
         """Test removing a followee through reversing the URL"""
-        logged_in = self.client.login(username='2nd_user', password='bartestpass')
+        logged_in = self.client.login(username='user_2', password='bartestpass')
         self.assertTrue(logged_in)
         followee_id = self.user_1.id
         url = reverse('unfollow', kwargs={'followee_id': followee_id})
@@ -269,7 +268,7 @@ class AddRemoveFollowers(TestCase):
 
     def test_fail_to_remove_followee_not_following(self):
         """Test removing a followee that is not even being followed"""
-        self.assertTrue(self.client.login(username='1st_user', password='bartestpass'))
+        self.assertTrue(self.client.login(username='user_1', password='bartestpass'))
         followee_id = self.user_2.id
         url = reverse('unfollow', kwargs={'followee_id': followee_id})
         response = self.client.put(path=url)
@@ -310,7 +309,7 @@ class UserProfileTests(TestCase):
         self.assertTemplateUsed(response, join(APP_NAME, 'profile.html'))
 
     def test_profile_contains_correct_html(self):
-        """Test if URL 'browse_follows' returns HTML with 'Browse 1st_user's following"""
+        """Test if URL 'browse_follows' returns HTML with 'Browse user_1's following"""
         response = self.client.get(reverse('profile',
                                            kwargs={'user_id': self.user_1.id}))
         self.assertContains(response, f"<h2>{self.user_1.username}</h2>")
