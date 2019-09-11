@@ -37,7 +37,7 @@ def profile(request, user_id=None):
     if user_id is None:
         user_id = request.user.id
     user = get_user_model().objects.get(id=user_id)
-    user_posts = models.Post.objects.filter(author=user)
+    user_posts = models.Post.objects.filter(author=user).order_by('-date')
 
     paginator = Paginator(user_posts, 2)
     page = request.GET.get('page')
@@ -152,7 +152,6 @@ def follow(request, followee_id):
 
 def unfollow(request, followee_id):
     followee = models.User.objects.get(id=followee_id)
-    print(followee)
     try:
         uf = models.UserFollower.objects.get(user=followee, follower=request.user)
         uf.delete()
