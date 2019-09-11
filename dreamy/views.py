@@ -1,4 +1,4 @@
-from django.contrib.auth import login, authenticate, get_user_model
+from django.contrib.auth import login, get_user_model
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core.paginator import Paginator
@@ -23,10 +23,7 @@ def register(request):
     if request.method == 'POST':
         form = DreamyUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = form.save()
             login(request, user)
             return redirect('home')
     else:
@@ -42,11 +39,14 @@ def profile(request, user_id=None):
     user = get_user_model().objects.get(id=user_id)
     user_posts = models.Post.objects.filter(author=user)
 
+    paginator = Paginator(user_posts, 2)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
     return render(request,
                   join(APP_NAME, 'profile.html'),
                   {'user': user,
                    'PRETTY_APP_NAME': PRETTY_APP_NAME,
-                   'user_posts': user_posts})
+                   'posts': posts})
 
 
 def browse_users(request, user_id=None, follow=None):

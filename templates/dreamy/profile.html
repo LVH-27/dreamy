@@ -5,21 +5,5 @@
   <p>{{ user.bio }}</p>
   <a href="{% url 'browse_follows' user_id=user.id follow='followers' %}">Followers</a>
   <a href="{% url 'browse_follows' user_id=user.id follow='following' %}">Following</a>
-  <div class="container">
-    <div class="list-group">
-      {% for post in user_posts %}
-      <hr>
-      <div class="list-group-item">
-        <a href="{% url 'post' post_id=post.id %}">
-          <span>
-            <!-- <img src="{{ post.image }}" height="50px" width="auto" display="inline-block"> -->
-            <h1>{{ post.title }}</h1>
-          </span>
-        </a>
-        <h5>Date: {{ post.date }}</h5>
-        <p>{{ post.description }}</p>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
+  {% include 'dreamy/_browse_posts.html' %}
 {% endblock %}
