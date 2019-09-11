@@ -12,6 +12,7 @@
         .no-margins { margin: 0px; }
         .with-margins { margin: 10px; }
         .col-centered { float: none; margin: 0 auto; }
+        .post-img { height: 200px; float: left; margin-right: 20px; }
         button { text-align: center; }
     </style>
 
@@ -45,7 +46,9 @@
         <ul class="nav navbar-nav">
           <li><a href="{% url 'home' %}">Home</a></li>
           {% if request.user.is_authenticated %}
-            <li><a href="{% url 'home' %}">Private timeline</a></li>
+            <li><a href="{% url 'submit' %}">Submit</a></li>
+            <li><a href="{% url 'public_timeline' %}">Public timeline</a></li>
+            <li><a href="{% url 'private_timeline' %}">Private timeline</a></li>
             <li><a href="{% url 'browse_follows' user_id=request.user.id follow='following' %}">Browse following</a></li>
             <li><a href="{% url 'browse_follows' user_id=request.user.id follow='followers' %}">Browse followers</a></li>
           {% endif %}
