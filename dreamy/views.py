@@ -98,7 +98,7 @@ def follow(request, followee_id):
                              'error': f'You are already following user {followee.username}!'})
     except ValueError:
         return JsonResponse({'success': False,
-                             'error': 'You must be logged in to (un)follow users!'})
+                             'error': 'You must be logged in to follow users!'})
     return JsonResponse({'success': True})
 
 
@@ -113,5 +113,5 @@ def unfollow(request, followee_id):
                              'error': f'You are not following user {followee.username}!'})
     except ValueError:
         return JsonResponse({'success': False,
-                             'error': 'You must be logged in to (un)follow users!'})
+                             'error': 'You must be logged in to unfollow users!'})
     return JsonResponse({'success': True})
