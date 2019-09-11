@@ -1,6 +1,8 @@
 from django.contrib.auth import login, authenticate, get_user_model
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from django.core.paginator import Paginator
+from django.db.utils import IntegrityError
 
 from os.path import join
 
@@ -63,9 +65,11 @@ def browse_users(request, user_id=None, follow=None):
             user_list = [user_follower.user for user_follower in user_follower_list]
         user_list.sort(key=lambda x: x.username)
 
-    current_user_following_list = [user_follower.user for user_follower in
-                                   models.UserFollower.objects.filter(follower=request.user)]
-    print(request.user, current_user_following_list)
+    if request.user.is_authenticated:
+        current_user_following_list = [user_follower.user for user_follower in
+                                       models.UserFollower.objects.filter(follower=request.user)]
+    else:
+        current_user_following_list = []
     user_following_pairs = []
     for user in user_list:
         user_following_pairs.append((user, user in current_user_following_list))
@@ -82,3 +86,32 @@ def browse_users(request, user_id=None, follow=None):
 
 def post(request, post_id):
     return f"Post: {post_id}"
+
+
+def follow(request, followee_id):
+    followee = models.User.objects.get(id=followee_id)
+    try:
+        uf = models.UserFollower(user=followee, follower=request.user)
+        uf.save()
+    except IntegrityError:
+        return JsonResponse({'success': False,
+                             'error': f'You are already following user {followee.username}!'})
+    except ValueError:
+        return JsonResponse({'success': False,
+                             'error': 'You must be logged in to (un)follow users!'})
+    return JsonResponse({'success': True})
+
+
+def unfollow(request, followee_id):
+    followee = models.User.objects.get(id=followee_id)
+    print(followee)
+    try:
+        uf = models.UserFollower.objects.get(user=followee, follower=request.user)
+        uf.delete()
+    except models.UserFollower.DoesNotExist:
+        return JsonResponse({'success': False,
+                             'error': f'You are not following user {followee.username}!'})
+    except ValueError:
+        return JsonResponse({'success': False,
+                             'error': 'You must be logged in to (un)follow users!'})
+    return JsonResponse({'success': True})

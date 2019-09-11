@@ -24,11 +24,11 @@
         </div>
         <div class="col-xs-1">
           {% if not user.1 %}
-            <button type="button" class="btn btn-success btn-xs" style="text-align: center">
+            <button type="button" id="follow-{{ user.0.id }}" class="btn btn-success btn-xs" onclick="update_follow(this)">
               Follow
             </button>
           {% else %}
-            <button type="button" class="btn btn-warning btn-xs" style="text-align: center">
+            <button type="button" id="follow-{{ user.0.id }}" class="btn btn-warning btn-xs" onclick="update_follow(this)">
               Unfollow
             </button>
           {% endif %}

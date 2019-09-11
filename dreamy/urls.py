@@ -28,4 +28,6 @@ urlpatterns = [
     re_path(r'users/(?P<user_id>[0-9]+)/(?P<follow>(followers|following))/', views.browse_users, name='browse_follows'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('register/', views.register, name='register'),
+    path('ajax/follow/<followee_id>', views.follow, name='follow'),
+    path('ajax/unfollow/<followee_id>', views.unfollow, name='unfollow'),
 ]
