@@ -3,10 +3,11 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.utils import IntegrityError
+from datetime import datetime
 
 from os.path import join
 
-from .forms import DreamyUserCreationForm
+from .forms import DreamyUserCreationForm, DreamySubmitPostForm
 from . import PRETTY_APP_NAME, APP_NAME, models
 
 # Create your views here.
@@ -84,8 +85,55 @@ def browse_users(request, user_id=None, follow=None):
                    'user_category': user_category})
 
 
-def post(request, post_id):
-    return f"Post: {post_id}"
+def submit(request):
+    if request.method == 'POST':
+        form = DreamySubmitPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            description = form.cleaned_data['description']
+            image = form.cleaned_data['image']
+            author = form.cleaned_data['author']
+            date = form.cleaned_data['date']
+            post = models.Post.objects.create(
+                description=description,
+                image=image,
+                author=author,
+                date=date
+            )
+            post.save()
+            return redirect(f'/post/{post.id}/')
+    else:
+        form = DreamySubmitPostForm(initial={'author': request.user, 'date': datetime.now()})
+    return render(request,
+                  join(APP_NAME, 'submit.html'),
+                  {'form': form,
+                   'PRETTY_APP_NAME': PRETTY_APP_NAME})
+
+
+def timeline(request, private):
+    if private:
+        title = "Private timeline"
+        target_users = [uf.user for uf in models.UserFollower.objects.filter(follower=request.user)]
+    else:
+        title = "Public timeline"
+        target_users = list(models.User.objects.all())
+
+    posts = []
+    [posts.extend(models.Post.objects.filter(author=user)) for user in target_users]
+    posts.sort(key=lambda post: post.date)
+
+    paginator = Paginator(posts, 2)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
+    return render(request,
+                  join(APP_NAME, 'timeline.html'),
+                  {'posts': posts,
+                   'PRETTY_APP_NAME': PRETTY_APP_NAME,
+                   'title': title})
+
+
+def view_post(request, post_id):
+    post = models.Post.objects.get(id=post_id)
+    return render(request, 'dreamy/post.html', {'post': post})
 
 
 def follow(request, followee_id):
