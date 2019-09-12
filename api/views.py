@@ -1,7 +1,7 @@
 from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action, api_view
+from rest_framework import viewsets, status, generics
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import get_user_model
 
 from dreamy.models import Post, UserFollower
@@ -16,6 +16,14 @@ class UserViewSet(viewsets.ModelViewSet):
     """This class defines a view for listing and detailing users"""
 
     queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+
+
+class CreateUserView(generics.CreateAPIView):
+    """This class defines the view for registering users"""
+
+    model = User
+    permission_classes = [AllowAny]
     serializer_class = serializers.UserSerializer
 
 
@@ -64,3 +72,16 @@ class UserFollowerViewSet(viewsets.ModelViewSet):
                         context={'request': request}
                         ).data
                         )
+
+
+@api_view(['POST'])
+def register(request):
+    serialized = serializers.UserSerializer(data=request.DATA)
+    if serialized.is_valid():
+        User.objects.create_user(
+            serialized.init_data['username'],
+            serialized.init_data['password']
+        )
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)

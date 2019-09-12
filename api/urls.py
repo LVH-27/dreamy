@@ -11,5 +11,6 @@ router.register(r'user_followers', views.UserFollowerViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('register/', views.CreateUserView.as_view(), name='register')
 ]
