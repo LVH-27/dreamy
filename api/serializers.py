@@ -14,7 +14,6 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         """Mapping serializer to Post model"""
 
         model = Post
-        view_name = 'post_detail'
         fields = ['url', 'image', 'description']
 
 
@@ -25,8 +24,7 @@ class UserFollowerSerializer(serializers.HyperlinkedModelSerializer):
         """Mapping serializer to UserFollower model"""
 
         model = UserFollower
-        view_name = 'followers'
-        fields = ['url', 'user', 'follower']
+        fields = ['url', 'user']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -42,7 +40,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         """Mapping serializer to User model"""
 
         model = User
-        view_name = 'user_detail'
         fields = ['url', 'username', 'password']
 
     def create(self, validated_data):
