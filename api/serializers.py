@@ -10,21 +10,29 @@ User = get_user_model()
 class PostSerializer(serializers.HyperlinkedModelSerializer):
     """Post model serializer"""
 
+    author = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
     class Meta:
         """Mapping serializer to Post model"""
 
         model = Post
-        fields = ['url', 'image', 'description']
+        fields = ['url', 'image', 'description', 'author']
 
 
 class UserFollowerSerializer(serializers.HyperlinkedModelSerializer):
     """UserFollower model serializer"""
 
+    follower = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
     class Meta:
         """Mapping serializer to UserFollower model"""
 
         model = UserFollower
-        fields = ['url', 'user']
+        fields = ['url', 'user', 'follower']
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
