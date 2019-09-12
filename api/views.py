@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 
 from dreamy.models import Post, UserFollower
 import api.serializers as serializers
-from api.permissions import IsAuthor
+from api.permissions import IsAuthor, IsFollower
 
 
 User = get_user_model()
@@ -39,5 +39,28 @@ class PostViewSet(viewsets.ModelViewSet):
 class UserFollowerViewSet(viewsets.ModelViewSet):
     """This class defines a view for listing UserFollowers"""
 
+    permission_classes = [IsAuthenticated, IsFollower]
     queryset = UserFollower.objects.all()
     serializer_class = serializers.UserFollowerSerializer
+
+    @action(detail=False)
+    def following(self, request, *args, **kwargs):
+        """Fetch all followees"""
+        uf_followees = UserFollower.objects.filter(follower=self.request.user)
+        return Response(serializers.UserFollowerSerializer(
+                        uf_followees,
+                        many=True,
+                        context={'request': request}
+                        ).data
+                        )
+
+    @action(detail=False)
+    def followers(self, request, *args, **kwargs):
+        """Fetch all followees"""
+        uf_followers = UserFollower.objects.filter(user=self.request.user)
+        return Response(serializers.UserFollowerSerializer(
+                        uf_followers,
+                        many=True,
+                        context={'request': request}
+                        ).data
+                        )
