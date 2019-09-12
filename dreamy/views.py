@@ -14,6 +14,9 @@ from . import PRETTY_APP_NAME, APP_NAME, models
 # Create your views here.
 
 
+User = get_user_model()
+
+
 def home(request):
     return render(request,
                   join(APP_NAME, 'index.html'),
@@ -40,6 +43,7 @@ def profile(request, user_id=None):
     if user_id is None:
         user_id = request.user.id
     user = get_user_model().objects.get(id=user_id)
+    title = user.username + "'s timeline"
     user_posts = models.Post.objects.filter(author=user).order_by('-date')
 
     paginator = Paginator(user_posts, 20)
@@ -49,16 +53,17 @@ def profile(request, user_id=None):
                   join(APP_NAME, 'profile.html'),
                   {'user': user,
                    'PRETTY_APP_NAME': PRETTY_APP_NAME,
-                   'posts': posts})
+                   'posts': posts,
+                   'title': title})
 
 
 def browse_users(request, user_id=None, follow=None):
     if follow is None:
         user_category = 'users'
-        user_list = models.User.objects.all().order_by('username')
+        user_list = User.objects.all().order_by('username')
     else:
         # note: if follow is not None, the user_id cannot be None
-        user = models.User.objects.get(id=user_id)
+        user = User.objects.get(id=user_id)
         if follow == 'followers':
             user_category = f'{user.username}\'s followers'
             user_follower_list = models.UserFollower.objects.filter(user=user)
@@ -118,7 +123,7 @@ def timeline(request, private):
         target_users = [uf.user for uf in models.UserFollower.objects.filter(follower=request.user)]
     else:
         title = "Public timeline"
-        target_users = list(models.User.objects.all())
+        target_users = list(User.objects.all())
 
     posts = []
     [posts.extend(models.Post.objects.filter(author=user)) for user in target_users]
@@ -140,7 +145,7 @@ def view_post(request, post_id):
 
 
 def follow(request, followee_id):
-    followee = models.User.objects.get(id=followee_id)
+    followee = User.objects.get(id=followee_id)
     try:
         uf = models.UserFollower(user=followee, follower=request.user)
         uf.save()
@@ -154,7 +159,7 @@ def follow(request, followee_id):
 
 
 def unfollow(request, followee_id):
-    followee = models.User.objects.get(id=followee_id)
+    followee = User.objects.get(id=followee_id)
     try:
         uf = models.UserFollower.objects.get(user=followee, follower=request.user)
         uf.delete()
