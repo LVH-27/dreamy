@@ -1,11 +1,16 @@
 from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from django.core.files import File
+from django.contrib.auth import get_user_model
 
-from os.path import join
+from os.path import join, basename
+import re
 
 from dreamy import APP_NAME
-from dreamy.models import User, UserFollower
+from dreamy.models import UserFollower, Post
+
+
+User = get_user_model()
 
 
 class HomePageTests(SimpleTestCase):
@@ -281,29 +286,32 @@ class AddRemoveFollowersTests(TestCase):
         self.assertEqual(response.json()['error'], f'You are not following user {self.user_2.username}!')
 
 
-class RegistrationTests(TestCase):
-    """Class for testing the registration view"""
-
-    pass
-
-
 class UserProfileTests(TestCase):
     """Class for testing the user profile"""
 
     def setUp(self):
+        """Set up data for user profile view tests"""
         self.file = File(open('static/dreamy/images/default_avatar.png', 'rb'))
-        self.user_1 = User.objects.create(username='test_user', avatar=self.file)
+        self.user_1 = User.objects.create(username='test_user', avatar=self.file, bio='test_bio')
         self.user_1.set_password('test_password')
-        self.user_1.bio = "test_bio"
         self.user_1.save()
 
+        self.user_2 = User.objects.create(username='test_user_2', avatar=self.file, bio='test_bio')
+        self.user_2.set_password('test_password')
+        self.user_2.save()
+
+        self.post = Post.objects.create(
+            description='test description shorter than 300 characters',
+            author=self.user_1,
+            image=self.file)
+
     def test_profile_status_code(self):
-        """browse_follows page gives HTTP status code 200 for users user_1 is following"""
+        """'browse_follows' page gives HTTP status code 200 for users user_1 is following"""
         response = self.client.get(f'/users/{self.user_1.id}/')
         self.assertEqual(response.status_code, 200)
 
     def test_profile_url_by_name(self):
-        """browse_follows page for users user_1 is following via the URL name gives HTTP status code 200"""
+        """'browse_follows' page for users user_1 is following via the URL name gives HTTP status code 200"""
         response = self.client.get(reverse('profile',
                                            kwargs={'user_id': self.user_1.id}))
         self.assertEqual(response.status_code, 200)
@@ -319,3 +327,59 @@ class UserProfileTests(TestCase):
         response = self.client.get(reverse('profile',
                                            kwargs={'user_id': self.user_1.id}))
         self.assertContains(response, f"<h2>{self.user_1.username}</h2>")
+
+    def test_profile_has_post(self):
+        """Test if user_1's profile view contains a post from user_1"""
+        response = self.client.get(reverse('profile',
+                                           kwargs={'user_id': self.user_1.id}))
+        self.assertContains(response, self.post.description)
+
+    def test_profile_has_no_other_posts(self):
+        """Test if user_2's profile view does not contain a post from user_1"""
+        response = self.client.get(reverse('profile',
+                                           kwargs={'user_id': self.user_2.id}))
+        self.assertNotContains(response, self.post.description)
+
+
+class RegistrationViewTests(TestCase):
+    """Tests for register view"""
+
+    def setUp(self):
+        """Registration view test setup"""
+        self.file = File(open('static/dreamy/images/totally_not_a_default_avatar.png', 'rb'))
+        self.default_avatar = File(open('static/dreamy/images/default_avatar.png', 'rb'))
+        self.user = User.objects.create(username='test_user',
+                                        bio='test bio shorter than 500 characters',
+                                        avatar=self.file,
+                                        password='test password')
+
+        self.new_user_data = {'username': 'new_user',
+                              'password1': self.user.password,
+                              'password2': self.user.password,
+                              'bio': self.user.bio,
+                              'avatar': self.user.avatar}
+
+    def test_register_correct_template(self):
+        """Test if the correct registration template is used."""
+        response = self.client.get(reverse('register'))
+        self.assertTemplateUsed(response, join(APP_NAME, 'register.html'))
+
+    def test_correct_avatar_set(self):
+        """Test if the correct avatar is saved if given in the form"""
+        self.client.post(reverse('register'), data=self.new_user_data)
+        user = User.objects.get(username=self.new_user_data['username'])
+        self.assertEqual(basename(user.avatar.url), basename(self.new_user_data['avatar'].name))
+
+    def test_default_avatar_set(self):
+        """Test if default avatar is set if an avatar is not specified"""
+        self.new_user_data.pop('avatar')
+        self.client.post(reverse('register'), data=self.new_user_data)
+        user = User.objects.get(username=self.new_user_data['username'])
+        avatar_regex = r'default_avatar.*\.png$'
+        self.assertTrue(re.match(avatar_regex, basename(user.avatar.name)))
+
+    def test_valid_data_correct_redirect_302(self):
+        """Test if valid data passes, and also redirects to home/"""
+        response = self.client.post(reverse('register'), data=self.new_user_data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], reverse('home'))

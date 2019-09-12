@@ -1,10 +1,14 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.core.exceptions import ValidationError
 
-from dreamy.models import User, UserFollower, Post
+from dreamy.models import UserFollower, Post
+
+
+User = get_user_model()
 
 
 class UserTests(TestCase):
